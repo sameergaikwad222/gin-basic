@@ -9,7 +9,8 @@ import (
 
 func main() {
 	router := gin.Default()
+	config.LoadEnv()
 	db := config.InitDB()
 	routes.RegisterAllRoutes(router, db)
-	router.Run(":3000")
+	router.Run(config.GetEnv("PORT"))
 }

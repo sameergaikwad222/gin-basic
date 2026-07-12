@@ -1,0 +1,2 @@
+PORT=":3000"
+DBSTRING="host=<your host here> user=<your username here> password=<your password here> dbname=<your db name here> port=5432 sslmode=disable TimeZone=Asia/Kolkata"
