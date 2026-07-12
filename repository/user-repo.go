@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"gin-basic/models"
 	"gin-basic/utility"
 
@@ -11,31 +12,33 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-
 func (r *UserRepository) Create(user *models.User) error {
-	return r.db.Create(user).Error
+	db := r.db.Model(&models.User{})
+	return db.Create(user).Error
 }
 
 func (r *UserRepository) CreateBulk(users []*models.User) error {
-	return r.db.CreateInBatches(users, 10).Error
+	db := r.db.Model(&models.User{})
+	return db.CreateInBatches(users, 10).Error
 }
 
 func (r *UserRepository) GetAll(query *utility.UserQueryParams) ([]models.User, error) {
 	var users []models.User
-	
+	db := r.db.Model(&models.User{})
+
 	// Filter by IDs
 	if len(query.IdList) > 0 {
-		r.db = r.db.Where("id IN ?", query.IdList)
+		db = db.Where("id IN ?", query.IdList)
 	}
 
 	// Filter by email
 	if query.Email != "" {
-		r.db = r.db.Where("email = ?", query.Email)
+		db = db.Where("email = ?", query.Email)
 	}
 
 	// Filter by username
 	if query.Username != "" {
-		r.db = r.db.Where("username ILIKE ?", "%"+query.Username+"%")
+		db = db.Where("username ILIKE ?", "%"+query.Username+"%")
 	}
 
 	// Pagination
@@ -48,8 +51,8 @@ func (r *UserRepository) GetAll(query *utility.UserQueryParams) ([]models.User, 
 	}
 
 	offset := (query.Page - 1) * query.Limit
-	r.db = r.db.Offset(offset).Limit(query.Limit)
-	err := r.db.Find(&users).Error
+	db = db.Offset(offset).Limit(query.Limit)
+	err := db.Find(&users).Error
 	if err != nil {
 		return nil, err
 	}
@@ -58,18 +61,35 @@ func (r *UserRepository) GetAll(query *utility.UserQueryParams) ([]models.User, 
 
 func (r *UserRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
-	err := r.db.First(&user, id).Error
+	db := r.db.Model(&models.User{})
+	err := db.First(&user, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (r *UserRepository) Update(user *models.User) error{
-	return r.db.Save(user).Error
-}	
+func (r *UserRepository) Update(id int, user *models.User) error {
+	updates := map[string]interface{}{}
+	db := r.db.Model(&models.User{})
+	fmt.Println(user)
+	if user.Name != "" {
+		updates["Name"] = user.Name
+	}
 
-func (r *UserRepository) Delete(id uint) error {
-	return r.db.Delete(&models.User{}, id).Error
+	if user.Age > 0 {
+		updates["Age"] = user.Age
+	}
+
+	if user.Email != "" {
+		updates["Email"] = user.Email
+	}
+
+	return db.Model(&models.User{}).Where("id = ?", id).Updates(updates).Error
+
 }
 
+func (r *UserRepository) Delete(id uint) error {
+	db := r.db.Model(&models.User{})
+	return db.Delete(&models.User{}, id).Error
+}
