@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gin-basic/config"
 	"gin-basic/routes"
 
 	"github.com/gin-gonic/gin"
@@ -8,8 +9,7 @@ import (
 
 func main() {
 	router := gin.Default()
-
-	routes.RegisterAllRoutes(router)
-
+	db := config.InitDB()
+	routes.RegisterAllRoutes(router, db)
 	router.Run(":3000")
 }

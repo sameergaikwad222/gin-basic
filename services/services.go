@@ -1,11 +1,15 @@
 package services
 
-type ServiceHub struct {
+import "gin-basic/repository"
+
+type AllServiceRegistry struct {
 	User *UserService
 }
 
-func NewServiceHub() *ServiceHub {
-	return &ServiceHub{
-		User: &UserService{},
+func NewServiceRegistry(allRepo *repository.AllRepositoryRegistry) *AllServiceRegistry {
+	return &AllServiceRegistry{
+		User: &UserService{
+			UserRepo: allRepo.UserRepo,
+		},
 	}
 }

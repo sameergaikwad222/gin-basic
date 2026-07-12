@@ -1,7 +1,35 @@
 package services
 
-type UserService struct{}
+import (
+	"gin-basic/models"
+	"gin-basic/repository"
+	"gin-basic/utility"
+)
 
-func (s *UserService) GetUsers() ([]models.User, err) {
-	return []models.User{}, nil
+type UserService struct{
+	UserRepo *repository.UserRepository
+}
+
+func (s *UserService) GetUsers(queryOption *utility.UserQueryParams) (users [] models.User, err error) {
+	return s.UserRepo.GetAll(queryOption)
+}
+
+func (s *UserService) GetUserById(Id uint) ( *models.User, error){
+	return s.UserRepo.GetByID(Id)
+}
+
+func (s *UserService) CreateUser(user *models.User) error {
+	return s.UserRepo.Create(user)
+}
+
+func (s *UserService) CreateBulkUsers(users []*models.User) error {
+	return s.UserRepo.CreateBulk(users)
+}
+
+func (s *UserService) UpdateUser(user *models.User) error {
+	return s.UserRepo.Update(user)
+}
+
+func (s *UserService) DeleteUser(Id uint) error {
+	return s.UserRepo.Delete(Id)
 }
